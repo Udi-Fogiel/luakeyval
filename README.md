@@ -1,5 +1,5 @@
 # The luakeyval Package
-luakeyval Version: 0.1, 2025-11-30
+luakeyval Version: 0.1, 2025-12-01
 
 ## Description
 The luakeyval LuaTeX mosule is a minimal key/value parser for LuaTeX formats

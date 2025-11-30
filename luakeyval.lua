@@ -1,4 +1,4 @@
--- luakeyval Version: 0.1, 2025-11-30
+-- luakeyval Version: 0.1, 2025-12-01
 
 local put_next = token.unchecked_put_next
 local get_next = token.get_next

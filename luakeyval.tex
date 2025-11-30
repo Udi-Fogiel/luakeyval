@@ -2,22 +2,24 @@
 \load[doc]
 
 \tit The `luakeyval` Module
-\hfill Version: 0.1, 2025-11-30  \par
+\hfill Version: 0.1, 2025-12-01  \par
 \centerline{\it Udi Fogiel, 2025}
 
 \parindent0pt\parskip5pt\parfillskip=20ptplus1fill
+\overfullrule=0pt
 
 The luakeyval LuTeX module is a minimal key/value parser for LuaTeX formats
-based on `token.scan_key_cs`. As such, the keword parsing is similar to how \TeX/
+based on `token.scan_key_cs`. As such, the keyword parsing is similar to how \TeX/
 parses keywords in special primitives like `\hrule`. 
 
 Unlike \TeX's scanner, `luakeyval` scans key/val pairs inside braces.
-This avoids the requirement of appending a `\relax` to the key/val
-pairs list to stop \TeX/ from scanning beyond necassery possibly
- creating expansion problems.
+This avoids the need to append a `\relax` to the key/val
+list, which would otherwise be required to stop \TeX/ from scanning
+too far and potentially creating expansion problems.
+
 
 \sec Usage
-The module provides the `process` function, which accept
+The module provides the `process` function, which accepts
 a table of keys, and a table of error messages.
 
 Each key in the table should have a table of parameters as a value. The possible
@@ -28,46 +30,150 @@ parameters are
                   The value will usually be a function from \LuaTeX's token library,
                   but you can use your own.
 * \param    args: a table of arguments that will be passed to the scanner function. 
-* \param default: a value that will return in case the key is not followed by a `=`.
+* \param default: default: a value returned if the key is not followed by a `=`.
 * \param    func: a function that will be executed each time the key appears.
 \enditems
-Non of the parameters is mandetory, but a key must have at least
+None of the parameters is mandatory, but a key must have at least
 one of `default` or `scanner`.
 
 
 The error messages table can have the following entries
 \begitems \style O
-* \param         error1: a message that will be displayed if something whent wrong
+* \param         error1: a message that will be displayed if something went wrong
                          while processing a key/val list. 
 * \param         error2: a message that will be displayed after `error1` in case a user
-                         press the `H` key for more informatin.
+                         press the `H` key for more information.
 * \param value_required: a message that will be displayed if no value given to a key
                          (when there is no `=` after the key) and the key does not have
                          a default value.
-* \param value_forbiden: a message that will be displayed if a key was given a value
+* \param value_forbidden: a message that will be displayed if a key was given a value
                          and the key does not have a `scanner` function.
 \enditems
 
 \sec Example
+The following code defines the `\coloredrule` macro,
+which accepts the keys `width`, `height`, `depth` and `color`,
+and prints a colored rule according to the values given.
+
 \begtt \hisyntax{lua}
-local keyval = require'luakeyval'
-local process = keyval.process
-local keys = {
-    
+local keyval = require('luakeyval')
+local rule_keys = {
+    width = {scanner = token.scan_dimen, default = tex.sp('1cm')},
+    height = {scanner = token.scan_dimen, default = tex.sp('1ex')},
+    depth = {scanner = token.scan_dimen, default = 0},
+    color = {scanner = token.scan_string},
 }
+
 local messages = {
-
+    error1 = "colored rule: Wrong syntax in \\coloredrule",
+    value_forbidden = 'colored rule: The key "%s" does not accept a value',
+    value_required = 'colored rule: The key "%s" requires a value',
 }
 
+local function make_rule()
+    local opts = keyval.process(rule_keys, messages)
+    local rule = node.new('rule')
+    rule.width = opts.width or tex.sp('1cm')
+    rule.height = opts.height or tex.sp('1ex')
+    rule.depth = opts.depth or 0
+    local color_start = node.new('whatsit', 'pdf_literal')
+    color_start.mode = 0
+    color_start.data = opts.color .. " rg"
+    local color_end = node.new('whatsit', 'pdf_literal')
+    color_end.mode = 0
+    color_end.data = '0 g'
+    rule.next = color_end
+    color_start.next = rule
+    rule = color_start
+    node.write(rule)
+end
+
+token.set_lua('coloredrule', #lua.get_functions_table() +1, 'protected')
+lua.get_functions_table()[#lua.get_functions_table()+1] = make_rule
 \endtt
 
+\beglua
+local keyval = require('luakeyval')
+local rule_keys = {
+    width = {scanner = token.scan_dimen, default = tex.sp('1cm')},
+    height = {scanner = token.scan_dimen, default = tex.sp('1ex')},
+    depth = {scanner = token.scan_dimen, default = 0},
+    color = {scanner = token.scan_string},
+}
 
-\sec Important limitations
+local messages = {
+    error1 = "colored rule: Wrong syntax in \\coloredrule",
+    value_forbidden = 'colored rule: The key "%s" does not accept a value',
+    value_required = 'colored rule: The key "%s" requires a value',
+}
+
+local function make_rule()
+    local opts = keyval.process(rule_keys, messages)
+    local width = opts.width or tex.sp('1cm')
+    local height = opts.height or tex.sp('1ex')
+    local depth = opts.depth or 0
+    local rule = node.new('rule')
+    rule.width = width
+    rule.height = height
+    rule.depth = depth
+    local color_start = node.new('whatsit', 'pdf_literal')
+    color_start.mode = 0
+    color_start.data = opts.color .. " rg"
+    local color_end = node.new('whatsit', 'pdf_literal')
+    color_end.mode = 0
+    color_end.data = '0 g'
+    rule.next = color_end
+    color_start.next = rule
+    rule = color_start
+    node.write(rule)
+end
+
+token.set_lua('coloredrule', #lua.get_functions_table() +1, 'protected')
+lua.get_functions_table()[#lua.get_functions_table()+1] = make_rule
+\endlua
+
+Now `\coloredrule{width = 10pt height = 5pt color={1 0 0}}` prints
+\coloredrule{width = 10pt height = 5pt color={1 0 0}}
+
+\sec Important Limitations
 Since the key/val parser is only a minimal layer
 on top of `token.scan_keyword`, key/val pairs should be separated with spaces,
-not commas, and you should not define a key which is a prefix of another key.
+not commas, and avoid defining a key that is a prefix of another key
+(unless you control the scanning order, see \ref[order]{Section @}).
+
+\label[order]
+\sec Scanning Order
+The `process` function loops over the keys table using LuaTeX's
+`token.scan_key_cs`. Since Lua tables do not guarantee key order when
+iterating with `pairs()`, the scanning order is not deterministic
+if you just provide a plain table.
+
+This is important when one key is a prefix of another (for example,
+`long` and `longer`). If the shorter key is checked first,
+it may match part of the input and leave extra characters unprocessed,
+leading to errors.
+
+To control the scanning order explicitly, pass a third argument to
+`process`: a list of keys in the exact order they should be scanned.
+This also allows scanning only a subset of keys if desired.
+
+\begtt \hisyntax{lua}
+local keys = {
+  long  = {scanner = token.scan_string},
+  longer = {scanner = token.scan_string},
+}
+
+-- Default scan (order not guaranteed)
+local opts = keyval.process(keys, messages)
+-- input: {longer="test"} may incorrectly match 'long' first
+
+-- Controlled scan with explicit order
+local order = {"longer", "long"}
+local opts = keyval.process(keys, messages, order)
+\endtt
 
 \sec Implementation
+The full Lua implementation is shown below for reference.
 \verbinput \vitt{luakeyval.lua} \hisyntax{lua} (1-) luakeyval.lua
 
 \bye
