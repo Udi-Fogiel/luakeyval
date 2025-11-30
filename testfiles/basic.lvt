@@ -1,0 +1,21 @@
+\input{regression-test.tex}
+\directlua{
+local keyval = require("luakeyval")
+local process = keyval.process
+local keys = {
+    foo = {scanner = token.scan_string},
+    bar = {scanner = token.scan_string},
+}
+local func = function()
+    local vals = process(keys,{})
+    texio.write_nl("log", "Foo is " .. vals.foo)
+    texio.write_nl("log", "Bar is " .. vals.bar)
+end
+local funcs = lua.get_functions_table()
+local luafnalloc = \string#funcs + 1
+token.set_lua('foo', luafnalloc)
+funcs[luafnalloc] = func
+}
+\START
+\foo{foo = foo bar = bar}
+\END
