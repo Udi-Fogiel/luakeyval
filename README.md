@@ -1,17 +1,17 @@
 # The luakeyval Package
-luakeyval version 0.1, 2025-01-19
+luakeyval version 0.1, 2025-11-31
 
 ## Description
 The luakeyval LuaTeX mosule is a minimal key/value parser for LuaTeX formats
-based on token.scan_key. 
+based on token.scan_key_cs. 
 
 ## Maintenance
-This package is currently maintained at https://github.com/Udi-Fogiel/unibidi-lua.
+This package is currently maintained at https://github.com/Udi-Fogiel/luakeyval.
 
 Issues can be reported at the issue tracker.
 
 ## Documentation
-To print the documentation run `optex -jobname unibidi-lua-doc '\docgen unibidi-lua'`
+To print the documentation run `optex luakeyval`
 
 ## License
 The luakeyval package is licencesed under the 0BSD license.
