@@ -5,9 +5,23 @@ local get_next = token.get_next
 local scan_toks = token.scan_toks
 local scan_keyword = token.scan_keyword_cs
 
-local relax = token.new(token.biggest_char() + 1)
 local texerror, utfchar = tex.error, utf8.char
 local format = string.format
+
+-- local relax = token.new(token.biggest_char() + 1)
+local relax
+do
+-- initialization of the new primitives.
+  local prefix = '@lua^key&val_' -- unlikely prefix...
+  while token.is_defined(prefix .. 'relax') do
+    prefix = prefix .. '@lua^key&val_'
+  end
+  tex.enableprimitives(prefix,{'relax'})
+-- Now we create new tokens with the meaning of
+-- the primitives.
+  local tok = token.create(prefix .. 'relax')
+  relax = token.new(tok.mode, tok.command)
+end
 
 local function check_delimiter(error1, error2, key)
     local tok = get_next()
