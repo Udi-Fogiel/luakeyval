@@ -1,0 +1,72 @@
+\verbchar` %c - for gedit
+\overfullrule=0pt
+
+\tit The `luakeyval` Module
+\hfill Version: 0.1, 2025-11-28  \par
+\centerline{\it Udi Fogiel, 2025}
+
+\parindent0pt\parskip5pt\parfillskip=20ptplus1fill
+
+The luakeyval LuTeX module is a minimal key/value parser for LuaTeX formats
+based on `token.scan_key_cs`. As such, the keword parsing is similar to how \TeX/
+parses keywords in special primitives like `\hrule`. 
+
+Unlike \TeX's scanner, `luakeyval` scans key/val pairs inside braces.
+This avoids the requirement of appending a `\relax` to the key/val
+pairs list to stop \TeX/ from scanning beyond necassery possibly
+ creating expansion problems.
+
+\sec Usage
+The module provides the `process` function, which accept
+a table of keys, and a table of error messages.
+
+Each key in the table should have a table of parameters as a value. The possible
+parameters are
+\def\param #1:{{\bf #1:}\hskip1em\ignorespaces}
+\begitems \style O
+* \param scanner: a function that will scan the value of the key from \TeX/ to Lua.
+                  The value will usually be a function from \LuaTeX's token library,
+                  but you can use your own.
+* \param    args: a table of arguments that will be passed to the scanner function. 
+* \param default: a value that will return in case the key is not followed by a `=`.
+* \param    func: a function that will be executed each time the key appears.
+\enditems
+Non of the parameters is mandetory, but a key must have at least
+one of `default` or `scanner`.
+
+
+The error messages table can have the following entries
+\begitems \style O
+* \param         error1: a message that will be displayed if something whent wrong
+                         while processing a key/val list. 
+* \param         error2: a message that will be displayed after `error1` in case a user
+                         press the `H` key for more informatin.
+* \param value_required: a message that will be displayed if no value given to a key
+                         (when there is no `=` after the key) and the key does not have
+                         a default value.
+* \param value_forbiden: a message that will be displayed if a key was given a value
+                         and the key does not have a `scanner` function.
+\enditems
+
+\sec Example
+\begtt \hisyntax{lua}
+local luakeyval = require'luakeyval'
+local process = luakeyval.process
+local keys = {
+    
+}
+
+\endtt
+
+
+\sec Important limitations
+Since the key/val parser is only a minimal layer
+on top of `token.scan_keyword`, key/val pairs should be separated with spaces,
+not commas, and you should not define a key which is a prefix of another key.
+
+\sec Implementation
+\load[doc]
+\verbinput \vitt{luakeyval.lua} \commentchars-- \hisyntax{lua} (1-) luakeyval.lua
+
+\bye
+
