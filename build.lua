@@ -19,7 +19,7 @@ tdsroot = "luatex"
 packtdszip = true
 
 specialformats = specialformats or { }
-specialformats.plain  = {luatex = {binary = "luahbtex", format = ""}}
+specialformats.plain  = {luatex = {binary = "luatex", format = ""}}
 checkformat = "plain"
 
 tagfiles = sourcefiles
