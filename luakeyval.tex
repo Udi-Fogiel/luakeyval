@@ -1,5 +1,5 @@
-\verbchar` %c - for gedit
-\overfullrule=0pt
+\useOpTeX
+\load[doc]
 
 \tit The `luakeyval` Module
 \hfill Version: 0.1, 2025-11-30  \par
@@ -50,10 +50,13 @@ The error messages table can have the following entries
 
 \sec Example
 \begtt \hisyntax{lua}
-local luakeyval = require'luakeyval'
-local process = luakeyval.process
+local keyval = require'luakeyval'
+local process = keyval.process
 local keys = {
     
+}
+local messages = {
+
 }
 
 \endtt
@@ -65,7 +68,6 @@ on top of `token.scan_keyword`, key/val pairs should be separated with spaces,
 not commas, and you should not define a key which is a prefix of another key.
 
 \sec Implementation
-\load[doc]
 \verbinput \vitt{luakeyval.lua} \commentchars-- \hisyntax{lua} (1-) luakeyval.lua
 
 \bye

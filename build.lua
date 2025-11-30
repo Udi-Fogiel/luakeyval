@@ -22,8 +22,7 @@ specialformats = specialformats or { }
 specialformats.plain  = {luatex = {binary = "luatex", format = ""}}
 checkformat = "plain"
 
-tagfiles = sourcefiles
-table.insert(tagfiles, "README.md")
+tagfiles = {"*.lua", module .. ".tex", "*.md"}
 function update_tag(file,content,tagname,tagdate)
   return string.gsub(content,
     "Version: %d+%.%d+, %d%d%d%d%-%d%d%-%d%d",

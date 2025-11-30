@@ -24,11 +24,11 @@ local unpack, insert = table.unpack, table.insert
 local function process_keys(keys, messages)
     local matched, vals, curr_key = true, { }
     local value_forbidden = messages.value_forbidden
-        or "luakeyval: the %s key does not accept a value"
+        or 'luakeyval: the key "%s" does not accept a value'
     local value_required = messages.value_required
-        or "luakeyval: the %s key require a value"
+        or 'luakeyval: the key "%s" require a value'
     local error1 = messages.error1
-        or "wrong syntax when processing keys"
+        or 'wrong syntax when processing keys'
     local error2 = messages.error2
         or 'the last scanned key was "%s".\nthere is a "%s" in the way.'
     local toks = scan_toks()
