@@ -1,6 +1,4 @@
-  --[[
-  luakeyval Version: 0.1, 2025-11-30
-  ]]--
+-- luakeyval Version: 0.1, 2025-11-30
 
 local put_next = token.unchecked_put_next
 local get_next = token.get_next
@@ -20,9 +18,10 @@ local function check_delimiter(error1, error2, key)
     end
 end
 
-local unpack, insert = table.unpack, table.insert 
-local function process_keys(keys, messages)
+local unpack = table.unpack
+local function process_keys(keys, messages, order)
     local matched, vals, curr_key = true, { }
+    local messages = messages or { }
     local value_forbidden = messages.value_forbidden
         or 'luakeyval: the key "%s" does not accept a value'
     local value_required = messages.value_required
@@ -31,20 +30,41 @@ local function process_keys(keys, messages)
         or 'wrong syntax when processing keys'
     local error2 = messages.error2
         or 'the last scanned key was "%s".\nthere is a "%s" in the way.'
+    local key_list = { }
+    if order then
+        for _, k in ipairs(order) do
+            key_list[#key_list+1] = k
+        end
+    else
+        for k in pairs(keys) do
+            key_list[#key_list+1] = k
+        end
+    end
     local toks = scan_toks()
-    insert(toks, relax)
+    toks[#toks+1] = relax
     put_next(toks)
     while matched do
         matched = false
-        for key, param in pairs(keys) do
+        for _, key in ipairs(key_list) do
+            local param = keys[key]
             if scan_keyword(key) then
                 matched = true
                 curr_key = key
                 local args = param.args or { }
                 local scanner = param.scanner
-                local val = scan_keyword('=') and 
-                  (scanner and scanner(unpack(args)) or texerror(format(value_forbidden, key)))
-                  or (param.default or texerror(format(value_required, key)))
+                local val
+                if scan_keyword('=') then
+                    if scanner then
+                        val = scanner(unpack(args))
+                    else
+                        texerror(format(value_forbidden, key))
+                    end
+                else
+                    val = param.default
+                    if val == nil then 
+                        texerror(format(value_required, key))
+                    end
+                end
                 local func = param.func
                 if func then func(key,val) end
                 vals[key] = val
@@ -68,7 +88,7 @@ end
 local function scan_bool()
     if scan_keyword('true') then 
         return true
-    elseif scan_keyword('flase') then
+    elseif scan_keyword('false') then
         return false
     end        
 end

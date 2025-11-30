@@ -3,12 +3,11 @@
 local keyval = require("luakeyval")
 local process = keyval.process
 local keys = {
-    foo = {scanner = token.scan_string},
+    foo = {defualt = "foo"},
     bar = {scanner = token.scan_string},
 }
 local func = function()
     local vals = process(keys)
-    texio.write_nl("log", "Foo is " .. vals.foo)
     texio.write_nl("log", "Bar is " .. vals.bar)
 end
 local funcs = lua.get_functions_table()
@@ -17,5 +16,5 @@ token.set_lua('foo', luafnalloc)
 funcs[luafnalloc] = func
 }
 \START
-\foo{foo = foo bar = bar}
+\foo{foo = fff bar = bar}
 \END
