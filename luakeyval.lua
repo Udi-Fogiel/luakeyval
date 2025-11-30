@@ -20,16 +20,17 @@ end
 
 local unpack = table.unpack
 local function process_keys(keys, messages, order)
+    assert(type(keys) == 'table')
     local matched, vals, curr_key = true, { }
-    local messages = messages or { }
+    messages = messages or { }
     local value_forbidden = messages.value_forbidden
-        or 'luakeyval: the key "%s" does not accept a value'
+        or 'luakeyval: The key "%s" does not accept a value'
     local value_required = messages.value_required
-        or 'luakeyval: the key "%s" require a value'
+        or 'luakeyval: The key "%s" requires a value'
     local error1 = messages.error1
-        or 'wrong syntax when processing keys'
+        or 'luakeyval: Wrong syntax when processing keys'
     local error2 = messages.error2
-        or 'the last scanned key was "%s".\nthere is a "%s" in the way.'
+        or 'luakeyval: The last scanned key was "%s".\nUnexpected token "%s" encountered.'
     local key_list = { }
     if order then
         for _, k in ipairs(order) do
@@ -72,7 +73,7 @@ local function process_keys(keys, messages, order)
             end
         end
     end
-    check_delimiter(error1, error2, curr_key)
+    check_delimiter(error1, error2, curr_key or '<none>')
     return vals
 end
 
@@ -83,6 +84,7 @@ local function scan_choice(...)
             return choice
         end
     end
+    return nil
 end
 
 local function scan_bool()
@@ -90,7 +92,8 @@ local function scan_bool()
         return true
     elseif scan_keyword('false') then
         return false
-    end        
+    end
+    return nil
 end
 
 return {

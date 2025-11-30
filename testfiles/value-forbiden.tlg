@@ -1,14 +1,14 @@
 This is a generated file for the l3build validation system.
 Don't change this file in any respect.
-! luakeyval: the key "foo" does not accept a value.
+! luakeyval: The key "foo" does not accept a value.
 <argument> foo =
                  fff bar = barBAD
 l. ...\foo{foo = fff bar = bar}
-! wrong syntax when processing keys.
+! luakeyval: Wrong syntax when processing keys.
 <recently read> f
 l. ...\foo{foo = fff bar = bar}
-the last scanned key was "foo".
-there is a "f" in the way.
+luakeyval: The last scanned key was "foo".
+Unexpected token "f" encountered.
 [\directlua]:1: attempt to concatenate a nil value (field 'bar')
 stack traceback:
 ^^I[\directlua]:1: in function <[\directlua]:1>.
